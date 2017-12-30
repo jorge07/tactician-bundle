@@ -65,16 +65,24 @@ commandbus:
     default:
         middleware:
             - tactician.middleware.command_handler
+    command:
+        middleware:
+            - tactician.commandbus.other.middleware.command_handler
     other:
         middleware:
             - tactician.commandbus.other.middleware.command_handler
 EOF
         );
         $this->registerService('tactician.test.handler', \League\Tactician\Bundle\Tests\EchoTextHandler::class, [
-            ['name' => 'tactician.handler', 'command' => 'League\Tactician\Bundle\Tests\EchoText', 'bus' => 'other'],
+            ['name' => 'tactician.handler', 'command' => 'League\Tactician\Bundle\Tests\EchoText', 'bus' => 'command'],
+        ]);
+        $this->registerService('tactician.test.other.handler', \League\Tactician\Bundle\Tests\EchoTestOtherHandler::class, [
+            ['name' => 'tactician.handler', 'command' => 'League\Tactician\Bundle\Tests\EchoTestOther', 'bus' => 'other'],
         ]);
         $this->expectOutputString('Welcome');
-        $this->handleCommand('other', \League\Tactician\Bundle\Tests\EchoText::class, ['Welcome']);
+        $this->handleCommand('command', \League\Tactician\Bundle\Tests\EchoText::class, ['Welcome']);
+        $this->expectOutputString('WelcomeOther');
+        $this->handleCommand('command', \League\Tactician\Bundle\Tests\EchoTestOtherHandler::class, ['WelcomeOther']);
     }
 
     /**
